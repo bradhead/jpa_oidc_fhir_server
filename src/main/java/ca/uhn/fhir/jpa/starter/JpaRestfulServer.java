@@ -40,6 +40,7 @@ import ca.uhn.fhir.validation.ResultSeverityEnum;
 import org.hl7.fhir.dstu3.model.Bundle;
 import org.hl7.fhir.dstu3.model.Meta;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
+import org.mitre.openid.connect.client.service.impl.DynamicServerConfigurationService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.cors.CorsConfiguration;
@@ -53,7 +54,7 @@ import java.util.TreeSet;
 
 public class JpaRestfulServer extends RestfulServer {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   @SuppressWarnings("unchecked")
   @Override
@@ -318,6 +319,13 @@ public class JpaRestfulServer extends RestfulServer {
       registerProvider(appCtx.getBean(BulkDataExportProvider.class));
     }
 
+    DynamicServerConfigurationService oidcServerConfig = new DynamicServerConfigurationService();
+    String whiteList = HapiProperties.getAuthServerWhitelist();
+    if (whiteList != null && whiteList.length() > 0) {
+      oidcServerConfig.setWhitelist(Set.of((whiteList.split(","))));
+    }
+    OIDCAuthorizationInterceptor authInterceptor = new OIDCAuthorizationInterceptor();
+    authInterceptor.setServerConfigurationService(oidcServerConfig);
+    registerInterceptor(authInterceptor);
   }
-
 }

@@ -3,6 +3,7 @@ package ca.uhn.fhir.jpa.starter;
 import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.context.FhirVersionEnum;
 import ca.uhn.fhir.jpa.search.elastic.ElasticsearchHibernatePropertiesBuilder;
+import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.EncodingEnum;
 import ca.uhn.fhir.rest.server.ETagSupportEnum;
 import com.google.common.annotations.VisibleForTesting;
@@ -489,5 +490,18 @@ public class HapiProperties {
   public static boolean isFhirPathFilterInterceptorEnabled() {
     return HapiProperties.getBooleanProperty("fhirpath_interceptor.enabled", false);
   }
+
+  public static String getAccessTokenHeaderName() {
+    return HapiProperties.getProperty("oauth.token.name", Constants.HEADER_AUTHORIZATION);
+  }
+
+  public static String getAccessTokenHeaderPrefix() {
+    return HapiProperties.getProperty("oauth.token.prefix");
+  }
+
+  public static String getAuthServerWhitelist() {
+    return HapiProperties.getProperty("oauth.whitelist");
+  }
+
 }
 
