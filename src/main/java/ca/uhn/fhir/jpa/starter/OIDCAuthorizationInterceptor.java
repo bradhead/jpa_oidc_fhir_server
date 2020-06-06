@@ -158,7 +158,7 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 	  //ourLog.info();
 	  try {
 		  authenticate(theRequestDetails);
-	  } catch (AuthenticationServiceException ex) {
+	  } catch (AuthenticationException ex) {
 		return new RuleBuilder()
 			.allow("Anonymous Metadata").metadata().andThen()
 	  		.denyAll(ex.getMessage())
