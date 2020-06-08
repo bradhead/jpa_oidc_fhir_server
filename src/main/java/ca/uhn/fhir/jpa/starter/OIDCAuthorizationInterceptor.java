@@ -2,7 +2,9 @@ package ca.uhn.fhir.jpa.starter;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -13,15 +15,17 @@ import org.mitre.jwt.signer.service.JWTSigningAndValidationService;
 import org.mitre.jwt.signer.service.impl.JWKSetCacheService;
 import org.mitre.openid.connect.client.service.ServerConfigurationService;
 import org.mitre.openid.connect.config.ServerConfiguration;
-
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Service;
 
+import ca.uhn.fhir.rest.api.Constants;
 import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.exceptions.AuthenticationException;
 import ca.uhn.fhir.rest.server.interceptor.auth.AuthorizationInterceptor;
 import ca.uhn.fhir.rest.server.interceptor.auth.IAuthRule;
+import ca.uhn.fhir.rest.server.interceptor.auth.IAuthRuleBuilderRule;
+import ca.uhn.fhir.rest.server.interceptor.auth.IAuthRuleBuilderRuleOpClassifier;
+import ca.uhn.fhir.rest.server.interceptor.auth.IAuthRuleBuilderRuleOpClassifierFinished;
 import ca.uhn.fhir.rest.server.interceptor.auth.RuleBuilder;
 
 @SuppressWarnings("ConstantConditions")
@@ -33,13 +37,15 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 
     private int myTimeSkewAllowance = 300;
 
-	private String authHeader = HapiProperties.getAccessTokenHeaderName(); 
-	private String tokenPrefix = HapiProperties.getAccessTokenHeaderPrefix(); 
+	private String authHeader = Constants.HEADER_AUTHORIZATION; 
+	private String tokenPrefix = Constants.HEADER_AUTHORIZATION_VALPREFIX_BEARER; 
+	private String altAuthHeader = HapiProperties.getAccessTokenHeaderName(); 
+	private String altTokenPrefix = HapiProperties.getAccessTokenHeaderPrefix(); 
 	
 	private ServerConfigurationService myServerConfigurationService;
 
     private JWKSetCacheService myValidationServices;
-    
+	
     OIDCAuthorizationInterceptor () {
         super();
 		myValidationServices = new JWKSetCacheService();
@@ -49,18 +55,30 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 		myServerConfigurationService = service;
 	}
 
-	public void authenticate(RequestDetails theRequest) throws AuthenticationException {
-		ourLog.info("Getting auth header with name '" + authHeader + "' and prefix '" + tokenPrefix + "'");
+	public SignedJWT authenticate(RequestDetails theRequest) throws AuthenticationException {
+		//Check for a "standard" bearer token first. 
+		//If the auth was handled by Kong we get the access token in a different header so check for that too....
+		ourLog.debug("Getting auth header with name '" + authHeader + "' and prefix '" + tokenPrefix + "'");
 		String token = theRequest.getHeader(authHeader);
-		if (token == null) {
-			throw new AuthenticationException("Not authorized (no authorization header found in request)");
+		if (token == null)  {
+			if (altAuthHeader!=null) {
+				ourLog.debug("Checking alt auth header with name '" + altAuthHeader + "'");
+				token = theRequest.getHeader(altAuthHeader);
+			}
+			if (token == null) {
+				throw new AuthenticationException("Not authorized (no authorization header found in request)");
+			}
 		}
 		if (!token.startsWith(tokenPrefix)) {
-			throw new AuthenticationException("Not authorized (authorization header does not contain a bearer token)");
+			ourLog.debug("Checking alt token prefix '" + altTokenPrefix + "'");
+			if (!token.startsWith(altTokenPrefix)) {
+				throw new AuthenticationException("Not authorized (authorization header does not contain a bearer token)");
+			}
+			token = token.substring(altTokenPrefix.length());
+		} else {
+			token = token.substring(tokenPrefix.length());
 		}
-
-		token = token.substring(tokenPrefix.length());
-
+		ourLog.info("Got token:" + token);
 		SignedJWT idToken;
 		try {
 			idToken = SignedJWT.parse(token);
@@ -142,61 +160,91 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 				throw new AuthenticationException("Id Token was issued in the future: " + idClaims.getIssueTime());
 			}
 		}
-
+		return idToken;
     }
 
 	public int getTimeSkewAllowance() {
 		return myTimeSkewAllowance;
     }
-        
+		
    @Override
    public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
       
-      IdType userIdPatientId = null;
-      boolean userIsAdmin = true;
-	  ourLog.info("Doing rulelist");
-	  //ourLog.info();
-	  try {
-		  authenticate(theRequestDetails);
-	  } catch (AuthenticationException ex) {
-		return new RuleBuilder()
-			.allow("Anonymous Metadata").metadata().andThen()
-	  		.denyAll(ex.getMessage())
-	  		.build();
-	  }
-      /*if ("Bearer dfw98h38r".equals(authHeader)) {
-         // This user has access only to Patient/1 resources
-         userIdPatientId = new IdType("Patient", 1L);
-      } else if ("Bearer 39ff939jgg".equals(authHeader)) {
-         // This user has access to everything
-         userIsAdmin = true;
-      } else {
-         // Throw an HTTP 401
-         throw new AuthenticationException("Missing or invalid Authorization header value");
-      }*/
+		IdType userIdPatientId = null;
+		boolean userIsAdmin = true;
+		SignedJWT token;
+		ourLog.info("Doing rulelist");
+		//ourLog.info();
+		try {
+			token = authenticate(theRequestDetails);
+		} catch (AuthenticationException ex) {
+			return new RuleBuilder()
+				.allow("Anonymous Metadata").metadata().andThen()
+				.denyAll(ex.getMessage())
+				.build();
+		}
 
-      // If the user is a specific patient, we create the following rule chain:
-      // Allow the user to read anything in their own patient compartment
-      // Allow the user to write anything in their own patient compartment
-      // If a client request doesn't pass either of the above, deny it
-      if (userIdPatientId != null) {
-         return new RuleBuilder()
-            .allow().read().allResources().inCompartment("Patient", userIdPatientId).andThen()
-            .allow().write().allResources().inCompartment("Patient", userIdPatientId).andThen()
-            .denyAll()
-            .build();
-      }
-      
-      // If the user is an admin, allow everything
-      if (userIsAdmin) {
-         return new RuleBuilder()
-            .allowAll()
-            .build();
-      }
-      
-      // Fallback to deny everything (something unexppected happend if this is hit) 
- 	  return new RuleBuilder()
-         .denyAll()
-         .build();
-   }
+		String[] scopes;
+		try {
+			scopes = token.getJWTClaimsSet().getStringClaim("scope").split(" ");
+		} catch (ParseException ex) {
+			return new RuleBuilder()
+				.allow("Anonymous Metadata").metadata().andThen()
+				.denyAll(ex.getMessage())
+				.build();
+		}
+			
+		ScopeParser scopeParser = new ScopeParser(scopes);
+		if(!scopeParser.hasSmartScopes()){
+			return new RuleBuilder()
+				.allow("").metadata().andThen()
+				.denyAll("No scope found")
+				.build();	
+		}
+
+		RuleBuilder rules = new RuleBuilder();
+		Iterator<SmartScope> smartScopes = scopeParser.getSmartScopes();
+		ourLog.info("Checking for smart scopes");
+		while(smartScopes.hasNext()){
+			ourLog.info("got smart scopes");
+			SmartScope s = smartScopes.next();
+			IAuthRuleBuilderRuleOpClassifier classifier = null;
+			if(s.canRead()) {
+				ourLog.info("Adding read rule");
+				IAuthRuleBuilderRule rule = rules.allow();
+				if(s.getResource().equals("*")){
+					ourLog.info("Adding wildcard resource");
+					classifier = rule.read().allResources();
+				} else {
+					classifier = rule.read().resourcesOfType(s.getResource());
+				}
+				if(s.isPatient()) { 
+					/* TODO. Get patient from launch context */
+					rules = (RuleBuilder) classifier.inCompartment("Patient",userIdPatientId).andThen();
+				} else {
+					ourLog.info("Adding user level access");
+					rules = (RuleBuilder) classifier.withAnyId().andThen();
+				}
+			}
+			if(s.canWrite()) {
+				ourLog.info("Adding write rule");
+				IAuthRuleBuilderRule rule = rules.allow();
+				if(s.getResource().equals("*")){
+					classifier = rule.write().allResources();
+				} else {
+					classifier = rule.write().resourcesOfType(s.getResource());
+				}
+				if(s.isPatient()) { 
+					/* TODO. Get patient from launch context */
+					rules = (RuleBuilder) classifier.inCompartment("Patient",userIdPatientId).andThen();
+				} else {
+					rules = (RuleBuilder) classifier.withAnyId().andThen();
+				}
+			}
+		}
+		List<IAuthRule> r = rules.denyAll("Backstop Deny").build();
+		ourLog.info(r.toString());
+		return r;
+	}
 }
+
