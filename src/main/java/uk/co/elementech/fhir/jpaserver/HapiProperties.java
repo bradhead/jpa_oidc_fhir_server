@@ -1,4 +1,4 @@
-package ca.uhn.fhir.jpa.starter;
+package uk.co.elementech.fhir.jpaserver;
 
 import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.context.FhirVersionEnum;

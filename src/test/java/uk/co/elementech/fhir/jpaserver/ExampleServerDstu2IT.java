@@ -1,4 +1,4 @@
-package ca.uhn.fhir.jpa.starter;
+package uk.co.elementech.fhir.jpaserver;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.model.dstu2.resource.Patient;

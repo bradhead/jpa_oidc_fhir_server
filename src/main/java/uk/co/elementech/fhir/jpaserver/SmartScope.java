@@ -1,4 +1,4 @@
-package ca.uhn.fhir.jpa.starter;
+package uk.co.elementech.fhir.jpaserver;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

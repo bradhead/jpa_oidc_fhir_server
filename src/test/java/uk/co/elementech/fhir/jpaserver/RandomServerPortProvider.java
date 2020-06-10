@@ -1,4 +1,4 @@
-package ca.uhn.fhir.jpa.starter;
+package uk.co.elementech.fhir.jpaserver;
 
 import java.io.IOException;
 import java.net.ServerSocket;

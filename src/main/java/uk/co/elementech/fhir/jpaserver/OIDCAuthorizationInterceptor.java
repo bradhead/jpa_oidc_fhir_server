@@ -1,4 +1,5 @@
-package ca.uhn.fhir.jpa.starter;
+//package ca.uhn.fhir.jpa.starter;
+package uk.co.elementech.fhir.jpaserver;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -171,7 +172,6 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
    public List<IAuthRule> buildRuleList(RequestDetails theRequestDetails) {
       
 		IdType userIdPatientId = null;
-		boolean userIsAdmin = true;
 		SignedJWT token;
 		ourLog.info("Doing rulelist");
 		//ourLog.info();
@@ -219,7 +219,13 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 					classifier = rule.read().resourcesOfType(s.getResource());
 				}
 				if(s.isPatient()) { 
-					/* TODO. Get patient from launch context */
+					userIdPatientId = getPatientClaim(token);
+					if(userIdPatientId==null){
+						return new RuleBuilder()
+						.allow("").metadata().andThen()
+						.denyAll("No patient claim found")
+						.build();			
+					}
 					rules = (RuleBuilder) classifier.inCompartment("Patient",userIdPatientId).andThen();
 				} else {
 					ourLog.info("Adding user level access");
@@ -235,7 +241,13 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 					classifier = rule.write().resourcesOfType(s.getResource());
 				}
 				if(s.isPatient()) { 
-					/* TODO. Get patient from launch context */
+					userIdPatientId = getPatientClaim(token);
+					if(userIdPatientId==null){
+						return new RuleBuilder()
+						.allow("").metadata().andThen()
+						.denyAll("No patient claim found")
+						.build();			
+					}
 					rules = (RuleBuilder) classifier.inCompartment("Patient",userIdPatientId).andThen();
 				} else {
 					rules = (RuleBuilder) classifier.withAnyId().andThen();
@@ -243,8 +255,18 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 			}
 		}
 		List<IAuthRule> r = rules.denyAll("Backstop Deny").build();
-		ourLog.info(r.toString());
+		ourLog.debug(r.toString());
 		return r;
+	}
+
+	private IdType getPatientClaim(SignedJWT token){
+		try {
+			String patientClaim = token.getJWTClaimsSet().getStringClaim("patient");
+			return new IdType(patientClaim);
+		} catch(ParseException ex){
+			ourLog.info("Failed to parse patient from token");
+			return null;
+		}
 	}
 }
 
