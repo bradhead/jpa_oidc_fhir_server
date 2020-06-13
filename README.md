@@ -1,16 +1,18 @@
 # HAPI-FHIR Starter Project
 
-This project is a complete starter project you can use to deploy a FHIR server using HAPI FHIR JPA.
+This project is a customisation of the HAPI-FHIR complete starter project you can use to deploy a FHIR server using HAPI FHIR JPA. The project adds Open Id Connect authentication and support for Smart on FHIR token scopes.
 
-Note that this project is specifically intended for end users of the HAPI FHIR JPA server module (in other words, it helps you implement HAPI FHIR, it is not the source of the library itself). If you are looking for the main HAPI FHIR project, see here: https://github.com/jamesagnew/hapi-fhir
+It does not include the default testing overlay normally included with the HAPI FHIR Starter project. A client application that supports the OIDC/OAuth2 authentication of this server is available [here](#todo)
 
 ## Prerequisites
 
-In order to use this sample, you should have:
+To run this project locally, you should have:
 
-- [This project](https://github.com/hapifhir/hapi-fhir-jpaserver-starter) checked out. You may wish to create a GitHub Fork of the project and check that out instead so that you can customize the project and save the results to GitHub.
+- [This project](https://github.com/elementechemlyn/jpa_fhir_server) checked out. You may wish to create a GitHub Fork of the project and check that out instead so that you can customize the project and save the results to GitHub.
 - Oracle Java (JDK) installed: Minimum JDK8 or newer.
 - Apache Maven build tool (newest version)
+
+To build and run this project in Docker you will only need the Docker runtime as the buildchain is included in the Dockerfile.
 
 ## Running locally
 
@@ -32,9 +34,45 @@ mvn -Djetty.port=8888 jetty:run
 
 And replacing 8888 with the port of your choice.
 
+## Running in Docker
+If you don't wish to (or can't) install all the dependencies for this project the Dockerfile in this project includes a buildchain that will download all the Maven dependencies, build the war file and copy the war file to a image running Tomcat. 
+
+To build the image:  
+
+`docker build -t yourrepo\yourimagename .`
+
+To run the image:  
+
+`docker run -p8080:8080 yourrepo\yourimagename`
+
+The server will be available at:  
+
+`http://localhost:8080/hapi-fhir-jpaserver/fhir/`
+
 ## Configurations
 
 Much of this HAPI starter project can be configured using the properties file in _src/main/resources/hapi.properties_. By default, this starter project is configured to use Derby as the database.
+
+### Token validation
+
+By default only the metadata endpoint of the server is available without authentication.  
+
+For all other endpoints you will need to include a BEARER token which includes at least one [SMART on FHIR scope](http://hl7.org/fhir/smart-app-launch/0.8.0/scopes-and-launch-context/).  
+
+To validate the token the issuing server must be whitelisted in the hapi.properties file. e.g:   
+
+`oauth.whitelist=http://lhcr1:8081/auth/realms/lhcr1`
+
+This URL is used to retrieve the well-known configuration of the auth server to enable the vlaidation of tokens.
+
+### Alternative token headers
+
+The hapi.properties file also allows the specification of an alternative header for location of the token. The server will look for a standard authroization header with a BEARER token and then fall back to the alternative header e.g.  
+```
+oauth.token.name=X-Access-Token
+oauth.token.prefix=MYTOKEN
+```
+Will cause the server to look in the header `X-Access-Token` for a token with a prefix of `MYTOKEN`. This is useful if the server is to be run behind a proxy which does not pass BEARER tokens directly.
 
 ### MySql configuration
 
@@ -68,15 +106,7 @@ You can override the properties that are loaded into the compiled web app (.war 
 
 Note: This property name and the path is case-sensitive. "-DHAPI.PROPERTIES=XXX" will not work.
 
-## Customizing The Web Testpage UI
-
-The UI that comes with this server is an exact clone of the server available at [http://hapi.fhir.org](http://hapi.fhir.org). You may skin this UI if you'd like. For example, you might change the introductory text or replace the logo with your own.
-
-The UI is customized using [Thymeleaf](https://www.thymeleaf.org/) template files. You might want to learn more about Thymeleaf, but you don't necessarily need to: they are quite easy to figure out.
-
-Several template files that can be customized are found in the following directory: [https://github.com/hapifhir/hapi-fhir-jpaserver-starter/tree/master/src/main/webapp/WEB-INF/templates](https://github.com/hapifhir/hapi-fhir-jpaserver-starter/tree/master/src/main/webapp/WEB-INF/templates)
-
-## Deploying to a Container
+## Deploying a local build to a Container
 
 Using the Maven-Embedded Jetty method above is convenient, but it is not a good solution if you want to leave the server running in the background.
 
@@ -96,57 +126,6 @@ Again, browse to the following link to use the server (note that the port 8080 m
 
 [http://localhost:8080/hapi-fhir-jpaserver/](http://localhost:8080/hapi-fhir-jpaserver/)
 
-## Deploy with docker compose
-
-Docker compose is a simple option to build and deploy container. To deploy with docker compose, you should build the project
-with `mvn clean install` and then bring up the containers with `docker-compose up -d --build`. The server can be
-reached at http://localhost:8080/hapi-fhir-jpaserver/.
-
-In order to use another port, change the `ports` parameter
-inside `docker-compose.yml` to `8888:8080`, where 8888 is a port of your choice.
-
-The docker compose set also includes my MySQL database, if you choose to use MySQL instead of derby, change the following
-properties in hapi.properties:
-
-- datasource.driver=com.mysql.jdbc.Driver
-- datasource.url=jdbc:mysql://hapi-fhir-mysql:3306/hapi
-- hibernate.dialect=org.hibernate.dialect.MySQL5InnoDBDialect
-- datasource.username=admin
-- datasource.password=admin
-
-## Running hapi-fhir-jpaserver-example in Tomcat from IntelliJ
-
-Install Tomcat.
-
-Make sure you have Tomcat set up in IntelliJ.
-
-- File->Settings->Build, Execution, Deployment->Application Servers
-- Click +
-- Select "Tomcat Server"
-- Enter the path to your tomcat deployment for both Tomcat Home (IntelliJ will fill in base directory for you)
-
-Add a Run Configuration for running hapi-fhir-jpaserver-example under Tomcat
-
-- Run->Edit Configurations
-- Click the green +
-- Select Tomcat Server, Local
-- Change the name to whatever you wish
-- Uncheck the "After launch" checkbox
-- On the "Deployment" tab, click the green +
-- Select "Artifact"
-- Select "hapi-fhir-jpaserver-example:war"
-- In "Application context" type /hapi
-
-Run the configuration.
-
-- You should now have an "Application Servers" in the list of windows at the bottom.
-- Click it.
-- Select your server, and click the green triangle (or the bug if you want to debug)
-- Wait for the console output to stop
-
-Point your browser (or fiddler, or what have you) to `http://localhost:8080/hapi/baseDstu3/Patient`
-
-It is important to use MySQL5Dialect when using MySQL version 5+.
 
 ## Enabling Subscriptions
 

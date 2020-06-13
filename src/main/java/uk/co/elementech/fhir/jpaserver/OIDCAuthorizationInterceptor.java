@@ -254,8 +254,8 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 				}
 			}
 		}
-		List<IAuthRule> r = rules.denyAll("Backstop Deny").build();
-		ourLog.debug(r.toString());
+		List<IAuthRule> r = rules.allow().metadata().andThen().denyAll().build();
+		ourLog.info(r.toString());
 		return r;
 	}
 
