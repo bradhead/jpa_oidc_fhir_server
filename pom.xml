@@ -8,7 +8,7 @@
         <hapi.version>5.0.0</hapi.version>
         <mysql.version>8.0.11</mysql.version>
         <postgres.version>42.2.9</postgres.version>
-        <javax.mail.version>1.6.1</javax.mail.version>
+        <sun.mail.version>1.6.1</sun.mail.version>
         <logback.version>1.2.3</logback.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
         <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
-            <version>1.6.1</version>
+            <version>${sun.mail.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.activation</groupId>
@@ -100,7 +100,7 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
+            <version>${logback.version}</version>
         </dependency>
 
         <!-- Needed for JEE/Servlet support -->
@@ -108,14 +108,14 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
-            <version>3.1.0</version>
+            <version>${javax.servlet.version}</version>
         </dependency>
 
         <!-- If you are using HAPI narrative generation, you will need to include Thymeleaf as well. Otherwise the following can be omitted. -->
         <dependency>
             <groupId>org.thymeleaf</groupId>
             <artifactId>thymeleaf</artifactId>
-            <version>3.0.11.RELEASE</version>
+            <version>${thymeleaf.version}</version>
         </dependency>
 
         <!-- Used for CORS support -->
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <!-- You may not need this if you are deploying to an application server which provides database connection pools itself. -->
