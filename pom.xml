@@ -12,7 +12,17 @@
         <logback.version>1.2.3</logback.version>
         <javax.servlet.version>3.1.0</javax.servlet.version>
         <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
-        <spring.version>5.2.3.RELEASE</spring.version>        
+        <spring.version>5.2.3.RELEASE</spring.version>   
+        <apache.commons.version>2.7.0</apache.commons.version>    
+        <h2.version>1.4.200</h2.version> 
+        <bootstrap.version>3.3.7</bootstrap.version>
+        <dtp.version>4.17.43</dtp.version>
+        <font.awesome.version>5.8.2</font.awesome.version>
+        <awesome.checkbox.version>1.0.1</awesome.checkbox.version>
+        <jstimezonedetect.version>1.0.6</jstimezonedetect.version>
+        <select2.version>4.0.3</select2.version>
+        <jquery.version>3.3.1</jquery.version>
+        <moment.version>2.15.1</moment.version>
     </properties>
     <!--
     Note: HAPI projects use the "hapi-fhir" POM as their base to provide easy management.
@@ -136,7 +146,7 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
-            <version>2.7.0</version>
+            <version>${apache.commons.version}</version>
         </dependency>
 
         <!-- This example uses H2 embedded database. If you are using another database such as Mysql or Oracle, you may omit the following dependencies and replace them with an appropriate database client
@@ -144,49 +154,49 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.200</version>
+            <version>${h2.version}</version>
         </dependency>
 
         <!-- webjars -->
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>3.3.7</version>
+            <version>${bootstrap.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
-            <version>4.17.43</version>
+            <version>${dtp.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>font-awesome</artifactId>
-            <version>5.8.2</version>
+            <version>${font.awesome.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>awesome-bootstrap-checkbox</artifactId>
-            <version>1.0.1</version>
+            <version>${awesome.checkbox.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>jstimezonedetect</artifactId>
-            <version>1.0.6</version>
+            <version>${jstimezonedetect.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>select2</artifactId>
-            <version>4.0.3</version>
+            <version>${select2.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>jquery</artifactId>
-            <version>3.3.1</version>
+            <version>${jquery.version}</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.bower</groupId>
             <artifactId>moment</artifactId>
-            <version>2.15.1</version>
+            <version>${moment.version}</version>
         </dependency>
 
         <!-- The following dependencies are only needed for automated unit tests, you do not neccesarily need them to run the example. -->
