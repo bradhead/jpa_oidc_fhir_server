@@ -45,6 +45,7 @@ public class ExampleServerDstu3IT {
 		HapiProperties.setProperty(HapiProperties.SUBSCRIPTION_WEBSOCKET_ENABLED, "true");
 		HapiProperties.setProperty(HapiProperties.ALLOW_EXTERNAL_REFERENCES, "true");
 		HapiProperties.setProperty(HapiProperties.ALLOW_PLACEHOLDER_REFERENCES, "true");
+		HapiProperties.setProperty("oidc.auth.enabled","false");
 		ourCtx = FhirContext.forDstu3();
 	}
 

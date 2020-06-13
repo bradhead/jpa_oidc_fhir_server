@@ -43,6 +43,7 @@ public class ExampleServerR4IT {
         HapiProperties.setProperty(HapiProperties.DATASOURCE_URL, "jdbc:h2:mem:dbr4");
         HapiProperties.setProperty(HapiProperties.FHIR_VERSION, "R4");
         HapiProperties.setProperty(HapiProperties.SUBSCRIPTION_WEBSOCKET_ENABLED, "true");
+		HapiProperties.setProperty("oidc.auth.enabled","false");
         ourCtx = FhirContext.forR4();
     }
 

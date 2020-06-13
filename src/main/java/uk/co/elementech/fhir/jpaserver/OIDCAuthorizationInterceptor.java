@@ -174,7 +174,11 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 		IdType userIdPatientId = null;
 		SignedJWT token;
 		ourLog.info("Doing rulelist");
-		//ourLog.info();
+		ourLog.info("OIDC value is " + HapiProperties.getOIDCEnabled());
+		if(!HapiProperties.getOIDCEnabled()){ //Auth is disabled - just allow everything. Hopefully we're just testing!
+			return new RuleBuilder()
+				.allowAll().build();
+		}
 		try {
 			token = authenticate(theRequestDetails);
 		} catch (AuthenticationException ex) {

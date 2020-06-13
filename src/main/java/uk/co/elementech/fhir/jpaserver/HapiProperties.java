@@ -503,5 +503,8 @@ public class HapiProperties {
     return HapiProperties.getProperty("oauth.whitelist");
   }
 
+  public static Boolean getOIDCEnabled() {
+    return HapiProperties.getPropertyBoolean("oidc.auth.enabled",true);
+  }
 }
 

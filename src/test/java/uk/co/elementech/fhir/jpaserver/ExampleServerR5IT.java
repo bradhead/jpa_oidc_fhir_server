@@ -45,6 +45,7 @@ public class ExampleServerR5IT {
         HapiProperties.setProperty(HapiProperties.DATASOURCE_URL, "jdbc:h2:mem:dbr5");
         HapiProperties.setProperty(HapiProperties.FHIR_VERSION, "R5");
         HapiProperties.setProperty(HapiProperties.SUBSCRIPTION_WEBSOCKET_ENABLED, "true");
+		HapiProperties.setProperty("oidc.auth.enabled","false");
         ourCtx = FhirContext.forR5();
     }
 

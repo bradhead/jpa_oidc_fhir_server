@@ -29,6 +29,8 @@ public class ExampleServerDstu2IT {
 		HapiProperties.forceReload();
 		HapiProperties.setProperty(HapiProperties.FHIR_VERSION, "DSTU2");
 		HapiProperties.setProperty(HapiProperties.DATASOURCE_URL, "jdbc:h2:mem:dbr2");
+		HapiProperties.setProperty("oidc.auth.enabled","false");
+
 		ourCtx = FhirContext.forDstu2();
 	}
 
