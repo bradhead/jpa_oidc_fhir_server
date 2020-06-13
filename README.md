@@ -1,6 +1,6 @@
-# HAPI-FHIR Starter Project
+# HAPI-FHIR-SMART Starter Project
 
-This project is a customisation of the HAPI-FHIR complete starter project you can use to deploy a FHIR server using HAPI FHIR JPA. The project adds Open Id Connect authentication and support for Smart on FHIR token scopes.
+This project is a customisation of the HAPI-FHIR complete starter project you can use to deploy a FHIR server using HAPI FHIR JPA. The project adds support for Open Id Connect and for Smart on FHIR token scopes.
 
 It does not include the default testing overlay normally included with the HAPI FHIR Starter project. A client application that supports the OIDC/OAuth2 authentication of this server is available [here](#todo)
 
@@ -59,7 +59,7 @@ By default only the metadata endpoint of the server is available without authent
 
 For all other endpoints you will need to include a BEARER token which includes at least one [SMART on FHIR scope](http://hl7.org/fhir/smart-app-launch/0.8.0/scopes-and-launch-context/).  
 
-To validate the token the issuing server must be whitelisted in the hapi.properties file. e.g:   
+To validate the token, the issuing server must be whitelisted in the hapi.properties file. e.g:   
 
 `oauth.whitelist=http://lhcr1:8081/auth/realms/lhcr1`
 
@@ -72,7 +72,7 @@ The hapi.properties file also allows the specification of an alternative header 
 oauth.token.name=X-Access-Token
 oauth.token.prefix=MYTOKEN
 ```
-Will cause the server to look in the header `X-Access-Token` for a token with a prefix of `MYTOKEN`. This is useful if the server is to be run behind a proxy which does not pass BEARER tokens directly.
+will cause the server to look in the header `X-Access-Token` for a token with a prefix of `MYTOKEN`. This is useful if the server is to be run behind a proxy which does not pass BEARER tokens directly or if a custom authentication scheme is used. The token must still be a valid OAUTH2 access token.
 
 ### MySql configuration
 
