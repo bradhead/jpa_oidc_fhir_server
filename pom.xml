@@ -2,6 +2,18 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <maven.version>3.5.0</maven.version>
+        <jetty.version>9.4.9.v20180320</jetty.version>
+        <hapi.version>5.0.0</hapi.version>
+        <mysql.version>8.0.11</mysql.version>
+        <postgres.version>42.2.9</postgres.version>
+        <javax.mail.version>1.6.1</javax.mail.version>
+        <logback.version>1.2.3</logback.version>
+        <javax.servlet.version>3.1.0</javax.servlet.version>
+        <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
+        <spring.version>5.2.3.RELEASE</spring.version>        
+    </properties>
     <!--
     Note: HAPI projects use the "hapi-fhir" POM as their base to provide easy management.
     You do not need to use this in your own projects, so the "parent" tag and it's
@@ -9,7 +21,7 @@
     if you are using this file as a basis for your own project.
     -->
         <groupId>uk.co.elementech.fhir.jpaserver</groupId>
-        <version>5.0.0</version>
+        <version>0.0.1</version>
 
     <artifactId>fhir-jpaserver</artifactId>
 
@@ -21,23 +33,23 @@
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-api</artifactId>
-            <version>9.4.9.v20180320</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty.websocket</groupId>
             <artifactId>websocket-client</artifactId>
-            <version>9.4.9.v20180320</version>
+            <version>${jetty.version}</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.11</version>
+            <version>${mysql.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.9</version>
+            <version>${postgres.version}</version>
         </dependency>
 
         <!-- Needed for Email subscriptions -->
@@ -63,14 +75,14 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-base</artifactId>
-            <version>5.0.0</version>
+            <version>${hapi.version}</version>
         </dependency>
 
         <!-- This dependency includes the JPA server itself, which is packaged separately from the rest of HAPI FHIR -->
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-jpaserver-base</artifactId>
-            <version>5.0.0</version>
+            <version>${hapi.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework</groupId>
@@ -240,7 +252,7 @@
         <dependency>
             <groupId>ca.uhn.hapi.fhir</groupId>
             <artifactId>hapi-fhir-test-utilities</artifactId>
-            <version>${project.version}</version>
+            <version>${hapi.version}</version>
             <scope>test</scope>
         </dependency>
 

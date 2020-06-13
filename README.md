@@ -43,7 +43,7 @@ To build the image:
 
 To run the image:  
 
-`docker run -p8080:8080 yourrepo\yourimagename`
+`docker run -d -p8080:8080 yourrepo\yourimagename`
 
 The server will be available at:  
 
@@ -52,6 +52,10 @@ The server will be available at:
 ## Configurations
 
 Much of this HAPI starter project can be configured using the properties file in _src/main/resources/hapi.properties_. By default, this starter project is configured to use Derby as the database.
+
+Configuration can also be set using environment variables. e.g To run the docker image with a specifc oauth whitelist (see below) use:  
+
+`docker run -d -e HAPI_OAUTH_WHITELIST=http://foo.bar -p8080:8080 yourrepo\yourimagename`
 
 ### Token validation
 
