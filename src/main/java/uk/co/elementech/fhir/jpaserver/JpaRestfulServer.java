@@ -322,7 +322,9 @@ public class JpaRestfulServer extends RestfulServer {
     DynamicServerConfigurationService oidcServerConfig = new DynamicServerConfigurationService();
     String whiteList = HapiProperties.getAuthServerWhitelist();
     if (whiteList != null && whiteList.length() > 0) {
-      oidcServerConfig.setWhitelist(Set.of((whiteList.split(","))));
+
+      Set<String> items = new HashSet<String>(Arrays.asList(whiteList.split(", ")));
+      oidcServerConfig.setWhitelist(items);
     }
     OIDCAuthorizationInterceptor authInterceptor = new OIDCAuthorizationInterceptor();
     authInterceptor.setServerConfigurationService(oidcServerConfig);
