@@ -147,7 +147,7 @@ public class OIDCAuthorizationInterceptor extends AuthorizationInterceptor {
 		if (idClaims.getNotBeforeTime() != null) {
 			Date now = new Date(System.currentTimeMillis() + (myTimeSkewAllowance * 1000));
 			if (now.before(idClaims.getNotBeforeTime())) {
-				throw new AuthenticationException("Id Token not valid untill: " + idClaims.getNotBeforeTime());
+				throw new AuthenticationException("Id Token not valid until: " + idClaims.getNotBeforeTime());
 			}
 		}
 
