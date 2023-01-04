@@ -321,12 +321,14 @@ public class JpaRestfulServer extends RestfulServer {
 
     DynamicServerConfigurationService oidcServerConfig = new DynamicServerConfigurationService();
     String whiteList = HapiProperties.getAuthServerWhitelist();
+    Set<String> items = new HashSet<String>();
     if (whiteList != null && whiteList.length() > 0) {
 
       Set<String> items = new HashSet<String>(Arrays.asList(whiteList.split(",")));
-      items.add("http://localhost:8080/auth/realms/phsa");
-      oidcServerConfig.setWhitelist(items);
     }
+    items.add("http://localhost:8080/auth/realms/phsa");
+    oidcServerConfig.setWhitelist(items);
+
     OIDCAuthorizationInterceptor authInterceptor = new OIDCAuthorizationInterceptor();
     authInterceptor.setServerConfigurationService(oidcServerConfig);
     registerInterceptor(authInterceptor);
