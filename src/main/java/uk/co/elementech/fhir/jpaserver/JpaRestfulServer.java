@@ -323,8 +323,7 @@ public class JpaRestfulServer extends RestfulServer {
     String whiteList = HapiProperties.getAuthServerWhitelist();
     Set<String> items = new HashSet<String>();
     if (whiteList != null && whiteList.length() > 0) {
-
-      Set<String> items = new HashSet<String>(Arrays.asList(whiteList.split(",")));
+      items = new HashSet<String>(Arrays.asList(whiteList.split(",")));
     }
     items.add("http://localhost:8080/auth/realms/phsa");
     oidcServerConfig.setWhitelist(items);
